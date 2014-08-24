@@ -1,0 +1,38 @@
+$(function() {	
+$('#pie4').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        },
+        title: {
+            text: '<%= l(:chart_expenses_by_category) %>'
+        },
+        tooltip: {
+    	    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b> - ${point.m}'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    color: '#000000',
+                    connectorColor: '#000000',
+                    format: '<b>{point.name}</b>:<br> {point.percentage:.1f} % - ${point.m}'
+                },showInLegend: true
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: '<%= l(:chart_expenses_by_category) %>',
+            data: [
+                <% sum = @sums_array.map {|s| s[6]}.reduce(0, :+)%><% @expense_by_categories.each do |i| %><% unless @expense_by_categories[1].nil? %>{
+                    name: '<%=i[1]%>',
+                    y: <%=i[2]/ sum*100%>,
+		    m: <%=i[2]%>,
+                },<%end%><%end%>
+            ]
+        }]
+    });
+});

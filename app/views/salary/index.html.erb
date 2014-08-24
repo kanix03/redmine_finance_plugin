@@ -1,0 +1,35 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+<% end %>
+<h2><%= l(:salary_list) %></h2>
+<table class="list issues">
+  <tr>
+    <th><%= l(:salary_name) %></th>
+    <th><%= l(:salary_salary) %></th>
+    <th><%= l(:salary_valid_from) %></th>
+    <th><%= l(:salary_valid_to) %></th>
+    <th></th>
+  </tr>
+  <% if @users.blank? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+   <% @users.each do |u| %> 
+    <tr class="<%= cycle('odd issue','even issue') %>">
+    <td class="updated_on"><%= link_to u.lastname+' '+u.firstname, salary_path(u)%></td>
+      <% if u.salary.empty? %>
+	<td>-</td>
+	<td>-</td>
+	<td>-</td>
+	<td><%= link_to 'Detail', salary_path(u) %>
+      <% else %>
+	<td><%= u.salary[0].hours_rate %></td>
+	<td><%= u.salary[0].valid_from %></td>
+	<td><% if u.salary[0].valid_to.nil? %>&infin;<% else %><%= u.salary[0].valid_to %><% end %></td>
+	<td><%= link_to 'Detail', salary_path(u)%></td>
+      <% end %>
+   <% end %>
+  <% end %>
+  </tr>
+
+</table>

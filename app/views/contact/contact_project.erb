@@ -1,0 +1,230 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+<script>
+$(function () { 
+	$('#con').change(function(){
+		$('#contacts').val($('#con').val());
+                $('#filter_form').submit();
+	});
+});
+function reset(){
+	document.getElementById("company").value = "";
+	document.getElementById("person").value = "";
+	document.getElementById("department").value = "";
+	document.getElementById("email").value = "";
+	document.getElementById("filter_form").submit();
+}
+function expand(id){
+ var p = id.split("_");
+ for(i=0;i<p[1];i++){
+  var o = document.getElementById(p[0]+"_"+i);
+  if(o.style.display == "none"){
+	o.style.display = "";
+  }else{
+	o.style.display = "none";
+  }
+ }
+}
+</script>
+<% end %>
+<h2 style="float: left;"><%= l(:contact_list) %></h2>
+<div class="new">
+<% if @right_view_contact %>
+<%= l(:contact) %><%= select_tag 'con', options_for_select([[l(:contact_this), "0"], [l(:all), "1"]],params[:contacts]) %>
+<%end%>
+<% if @right_edit_contact %>
+<%= link_to(image_tag('add.png', :style => 'vertical-align: middle;'),new_contact_path) %>
+<%= link_to l(:contact_new), new_contact_path %><br>
+<%end%>
+</div>
+<br><br><br>
+<fieldset id="filters" class="collapsible">
+      <legend onclick="toggleFieldset(this);"><%= l(:search) %></legend>
+<div style="<%= params[:company].nil? || (params[:company].empty? && params[:person].empty? && params[:email].empty? && params[:department].empty?) ? "display: none;" : "" %>">
+<%= form_tag('contact', :method => :get,:id => 'filter_form') do %>
+<% if params[:contacts].nil? %>
+	<%= hidden_field_tag 'contacts', 0 %>
+<% elsif params[:contacts].empty? %>
+	<%= hidden_field_tag 'contacts', 0 %>
+<% else %>
+	<%= hidden_field_tag 'contacts', params[:contacts] %>
+<% end %>
+<table id="filters-table">
+ <tr>
+  <td class="field"><%= l(:contact_company_name) %></td>
+  <td class="values"><%= text_field_tag :company,params[:company] %></td>
+ </tr>
+ <tr>
+  <td class="field"><%= l(:contact_contact_person) %></td>
+  <td class="values"><%= text_field_tag :person,params[:person] %></td>
+ </tr>
+ <tr>
+  <td class="field"><%= l(:contact_department) %></td>
+  <td class="values"><%= text_field_tag :department,params[:department] %></td>
+ </tr>
+ <tr>
+  <td class="field"><%= l(:contact_email) %></td>
+  <td class="values"><%= text_field_tag :email,params[:email] %></td>
+ </tr>
+</table>
+<%= link_to_function l(:button_apply), 'submit_filter_form("filter_form")', :class => 'icon icon-checked' %>
+<%= link_to_function l(:button_clear), 'reset()', :class => 'icon icon-reload'  %>
+<% end %>
+</div>
+</fieldset>
+<% if @con.empty? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+	<table class="list issues">
+  	<tr>
+	   <th></th>
+	   <th><%= l(:contact_company_name) %></th>
+ 	   <th><%= l(:contact_email) %></th>
+ 	   <th><%= l(:contact_phone) %></th>
+	   <th><%= l(:contact_contact_person) %></th>
+ 	   <th><%= l(:contact_email) %></th>
+ 	   <th><%= l(:contact_phone) %></th>
+ 	   <th><%= l(:contact_address) %></th>
+ 	   <th></th>
+	</tr>
+	<% @con.each do |c| %> 
+		<tr class="<%= cycle('odd issue','even issue') %>">
+<td>
+<% unless c.contact.empty? %>
+<%= link_to_function image_tag('arrow_expanded.png', :style => 'vertical-align: middle;', :id => c.id), 'expand("'+c.id.to_s+'_'+
+c.contact.count.to_s+'")' %>
+<% end %></td>
+		    <td><%= link_to c.company_name, contact_path(c)%></td>
+		    <td><%= c.email %></td>
+		    <td><%= c.phone %></td>
+		    <td><%= @p = "" %><%= @r = "" %><%= @q = "" %>
+<% if c.contact.empty? %>-<% else %>
+	<% c.contact.each do |f| %>
+	 <% if @p.empty? && !params[:person].nil? %>
+	  <% unless f.contact_person.downcase.scan(params[:person]).empty? %>
+		<% @p="a" %><% @r=f.pemail %><% @q=f.pphone %><%= f.contact_person %>				
+	  <% end %>
+	 <% end %>
+	<% end %>
+	<% if @p.empty? %>
+		<% c.contact[0..0].each do |f| %>	
+			<%= f.contact_person %><% @r=f.pemail %><% @q=f.pphone %>
+		<% end %>	
+	<% end %>
+<% end %>
+		    </td>
+		    <td><% if @r.empty? %>-<% else %><%= @r %><% end %></td>
+		    <td><% if @q.empty? %>-<% else %><%= @q %><% end %></td>
+		    <td><%= "#{c.street}, #{c.zip_code} #{c.city}, #{c.state}" %></td>
+		    <td>
+<% @yes = "" %>
+<% c.contact_project.each do |cp| %>
+	<% if cp.project_id == @project.id && User.current.allowed_to?({:controller => :contact, :action => :contact_project_create}, @project)%>
+		  <%= link_to 'Remove from this project', delete_contact_project_path(@project,c), method: :delete %></td>
+                  <% @yes = "a" %>
+	<% end %>
+<% end %>  
+	<% if @yes.empty? && User.current.allowed_to?({:controller => :contact, :action => :contact_project_create}, @project) %>  
+		  <%= link_to 'Add to this project', new_contact_project_path(@project,c), method: :post %></td>
+	<% end %>
+		    </td>
+		</tr>
+<% unless c.contact.empty? %>
+	<% @p = 0 %>
+	<% c.contact.each do |f| %>
+		<tr id="<%= c.id.to_s+'_'+@p.to_s %>" style="display: none">
+  			<td></td><td><%= f.contact_person %></td><td><%= f.pemail %></td><td><%= f.pphone %></td>
+		</tr>
+		<% @p=@p+1 %>
+	<% end %>
+<% end %>
+	<% end %>
+	</table>
+<% end %>
+
+
+
+
+<% if false %>
+<% if @con.empty? %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+<table class="list issues">
+  <tr>
+    <th></th>
+    <th>Company Name</th>
+    <th>Contact Person</th>
+    <th>Email</th>
+    <th>Phone</th>
+    <th>Address</th>
+    <th></th>
+    <th></th>
+  </tr>
+<% @con.each do |c| %> 
+<% unless params[:contacts].nil? %>
+ <% if params[:contacts] == "1" %>
+  <% if c.contact_type == 1 %>
+<tr class="<%= cycle('odd issue','even issue') %>">
+    <td class="updated_on"></td><td>
+<% unless c.contact.empty? %>
+<%= link_to_function image_tag('arrow_expanded.png', :style => 'vertical-align: middle;', :id => c.id), 'expand("'+c.id.to_s+'_'+
+c.contact.count.to_s+'")' %>
+<% end %></td>
+<td><%= link_to c.contact_person, contact_path(c.parent_id)%>
+</td><td><%= c.pemail %></td><td><%= c.pphone %></td><td>-</td><td></td><td></td>
+  <% else %>
+  <tr class="<%= cycle('odd issue','even issue') %>">
+    <td class="updated_on"><%= link_to c.company_name, contact_path(c)%></td><td>-
+</td><td><%= c.email %></td><td><%= c.phone %></td><td><%= "#{c.street}, #{c.zip_code} #{c.city}, #{c.state}" %></td><td></td>
+    <td>
+	<% @yes = "" %>
+	<% c.contact_project.each do |cp| %>
+		<% if cp.project_id == @project.id %>
+		  <%= link_to 'Remove from this project', delete_contact_project_path(@project,c), method: :delete %></td>
+                  <% @yes = "a" %>
+		<% end %>
+	<% end %>  
+	  <% if @yes.empty? %>  
+		  <%= link_to 'Add to this project', new_contact_project_path(@project,c), method: :post %></td>
+	  <% end %>
+  </tr>
+ <% end %>
+ <% else %>
+  <tr class="<%= cycle('odd issue','even issue') %>">
+    <td class="updated_on"><%= link_to c.company_name, contact_path(c)%></td><td>
+<% unless c.contact.nil? %>
+<% if c.contact.empty? %>-<%end%>
+<% c.contact.each do |f| %>
+<%unless f.contact_person.downcase.scan(params[:person]).empty? %><% @e="a" %><%= f.contact_person %>
+<%end%>
+<% end %>
+<% if @e.nil? %><% c.contact[0..0].each do |f| %><%= f.contact_person %><%end%><%end%><% else %>-<% end %>
+</td><td><%= c.email %></td><td><%= c.phone %></td><td><%= "#{c.street}, #{c.zip_code} #{c.city}, #{c.state}" %></td><td></td>
+    <td><%= link_to 'Remove from this project', delete_contact_project_path(@project,c.id), method: :delete %></td></td>
+  </tr>
+ <% end %>
+<% else %> <tr class="<%= cycle('odd issue','even issue') %>">
+    <td class="updated_on"><%= link_to c.contact.company_name, contact_path(c.contact)%></td><td>-
+</td><td><%= c.contact.email %></td><td><%= c.contact.phone %></td><td><%= "#{c.contact.street}, #{c.contact.zip_code} #{c.contact.city}, #{c.contact.state}" %></td><td></td>
+    <td><%= link_to 'Remove from this project', delete_contact_project_path(@project,c.contact.id), method: :delete %></td></td>
+  </tr>
+<% unless c.contact.empty? %>
+	<% @p = 0 %>
+	<% c.contact.each do |f| %>
+		<tr id="<%= c.id.to_s+'_'+@p.to_s %>" style="display: none">
+  			<td></td><td><%= f.contact_person %></td><td><%= f.pemail %></td><td><%= f.pphone %></td>
+		</tr>
+		<% @p=@p+1 %>
+	<% end %>
+<% end %>
+<% end %>
+<% end %>
+</table>
+<% end %>
+<% unless @t.nil? %>
+<% @t.each do |t| %>
+<%= t.company_name %>
+<% end %><% end %>
+<%= @r %>
+<% end%>

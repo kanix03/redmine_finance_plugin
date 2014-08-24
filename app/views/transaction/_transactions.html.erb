@@ -1,0 +1,240 @@
+</div>
+<div class="tabs">
+	<ul>
+		<li><%= link_to_function l(:transaction_real),'view_trans(0)',:class => "selected",:id => "real_link" %></li>
+		<li><%= link_to_function l(:transaction_plan),'view_trans(1)',:id => "plan_link" %></li>
+	</ul>
+</div>
+<div id="real_trans">
+<h3><%= l(:transaction_real) %></h3>
+<% if @real.empty? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <table class="list issues">
+    <tr>
+    <% if params[:order]=="typ ASC" %>
+	<th><%= link_to_function l(:transaction_typ),'order("typ DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_typ),'order("typ ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="issuance_date ASC" %>
+	<th><%= link_to_function l(:transaction_issuance_date),'order("issuance_date DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_issuance_date),'order("issuance_date ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="due_to ASC" %>
+	<th><%= link_to_function l(:transaction_due_to),'order("due_to DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_due_to),'order("due_to ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="paid_on ASC" %>
+	<th><%= link_to_function l(:transaction_paid_on),'order("paid_on DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_paid_on),'order("paid_on ASC","filter_form")' %></th>
+    <% end %>
+<th></th>
+    <% if params[:order]=="contacts.company_name,projects.name,users.lastname ASC" %>
+	<th><%= link_to_function l(:transaction_from),'order("contacts.company_name,projects.name,users.lastname DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_from),'order("contacts.company_name,projects.name,users.lastname ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="name ASC" %>
+	<th><%= link_to_function l(:transaction_name),'order("name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_name),'order("name ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="amount ASC" %>
+	<th><%= link_to_function l(:transaction_amount),'order("amount DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_amount),'order("amount ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="categories.name ASC" %>
+	<th><%= link_to_function l(:transaction_category),'order("categories.name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_category),'order("categories.name ASC","filter_form")' %></th>
+    <% end %>
+	<th></th>
+	<th></th>
+    </tr>
+    <% @real.each do |t| %>
+<% p = Project.find(t.project_id) %>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :index},p) %>
+  	<tr class="<%= cycle('odd issue','even issue') %>">
+		<td>
+<% if t.typ == 0 %> 
+<%= image_tag("Green_Arrow_Right.svg", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<% else %>
+<%= image_tag("Red_Arrow_Left.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<% end %>
+</td>
+    		<td><%= t.issuance_date %></td>
+    		<td><%= t.due_to %></td>
+    		<td><% if t.paid_on.nil? %><%= l(:transaction_not_paid) %><%else%><%= t.paid_on %><%end%></td>
+		<td style="text-align: right;">
+<% if t.from_type == 0 %> 
+<%= image_tag("contact.ico", :plugin => 'budget', :width => "15px", :alt => "income") %>
+<% elsif t.from_type == 1 %>
+<%= image_tag("project.jpeg", :plugin => 'budget', :width => "15px", :alt => "income") %>
+<% else %>
+<%= image_tag("user.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<% end %>
+		</td>
+    		<td>
+<% if t.from_type == 0 %><%= link_to t.contact.company_name,contact_path(t.contact) if t.contact.present? %><%end%>
+<% if t.from_type == 1 %><%= link_to t.project_from,project_path(t.project_from) if t.project_from.present? %><%end%>
+<% if t.from_type == 2 %><%= link_to t.user,user_path(t.user) if t.user.present? %><%end%>
+<% if t.from_type == 3 %><%= link_to t.user,user_path(t.user) if t.user.present?%><%end%>
+</td>
+    		<td><%= link_to t.name, transaction_path(:id => params[:id],:idt => t) %></td>
+    		<td<% if t.typ == 1 %> style="color: red;"<%end%>><% if t.typ == 0 %><%= number_to_currency(t.amount) %><%else%>-<%= number_to_currency(t.amount) %><%end%></td>
+    		<td><% if t.category.nil? %>-<%else%><%= t.category.name %><%end%></td>
+    		<td>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :edit},p) %>
+<%= link_to image_tag('edit.png', :style => 'vertical-align: middle;'), edit_transaction_path(:id => params[:id],:idt => t) %>
+<%end%>
+		</td>
+    		<td>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :edit},p) %>
+<%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'), delete_transaction_path(:id => params[:id],:idt => t), method: :delete, data: { confirm: l(:text_are_you_sure) } %>
+<%end%>
+		</td>
+  	</tr>
+ <% end %>
+
+    <% end %>
+<tr style = "border: 1px solid rgb(228, 228, 228);background-color: rgb(238, 238, 238);">
+    		<td></td>
+    		<td></td>
+    		<td></td>
+    		<td></td>
+    		<td></td>
+		<td></td>
+		<td></td>
+    		<td><%= number_to_currency(@real_sum) %></td>
+    		<td></td>
+    		<td></td>
+    		<td></td>
+
+  	</tr>
+</table>
+ <% end %>
+</div>
+<div id="plan_trans" style="display: none">
+<h3><%= l(:transaction_plan) %></h3>
+<% if @plan.empty? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <table class="list issues">
+    <tr>	
+    <% if params[:order]=="typ ASC" %>
+	<th><%= link_to_function l(:transaction_typ),'order("typ DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_typ),'order("typ ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order2]=="issuance_date ASC" %>
+	<th><%= link_to_function l(:transaction_issuance_date),'order2("issuance_date DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_issuance_date),'order2("issuance_date ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order2]=="due_to ASC" %>
+	<th><%= link_to_function l(:transaction_due_to),'order2("due_to DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_due_to),'order2("due_to ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order2]=="paid_on ASC" %>
+	<th><%= link_to_function l(:transaction_paid_on),'order2("paid_on DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_paid_on),'order2("paid_on ASC","filter_form")' %></th>
+    <% end %>
+<th></th>
+    <% if params[:order2]=="contacts.company_name,projects.name,users.lastname ASC" %>
+	<th><%= link_to_function l(:transaction_from),'order2("contacts.company_name,projects.name,users.lastname DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_from),'order2("contacts.company_name,projects.name,users.lastname ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order2]=="name ASC" %>
+	<th><%= link_to_function l(:transaction_name),'order2("name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_name),'order2("name ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order2]=="amount ASC" %>
+	<th><%= link_to_function l(:transaction_amount),'order2("amount DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_amount),'order2("amount ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order2]=="categories.name ASC" %>
+	<th><%= link_to_function l(:transaction_category),'order2("categories.name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:transaction_category),'order2("categories.name ASC","filter_form")' %></th>
+    <% end %>
+	<th></th>
+	<th></th>
+	<th></th>
+    </tr>
+    <% @plan.each do |t| %>
+<% p = Project.find(t.project_id) %>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :index},p) %>
+  	<tr class="<%= cycle('odd issue','even issue') %>">
+		<td>
+<% if t.typ == 0 %> 
+<%= image_tag("Green_Arrow_Right.svg", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<% else %>
+<%= image_tag("Red_Arrow_Left.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<% end %>
+		</td>
+    		<td><%= t.issuance_date %></td>
+    		<td><%= t.due_to %></td>
+    		<td><% if t.paid_on.nil? %><%= l(:transaction_not_paid) %><%else%><%= t.paid_on %><%end%></td>
+		<td style="text-align: right;">
+<% if t.from_type == 0 %> 
+<%= image_tag("contact.ico", :plugin => 'budget', :width => "15px", :alt => "income") %>
+<% elsif t.from_type == 1 %>
+<%= image_tag("project.jpeg", :plugin => 'budget', :width => "15px", :alt => "income") %>
+<% else %>
+<%= image_tag("user.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<% end %>
+		</td>
+    		<td>
+<% if t.from_type == 0 %><%= link_to t.contact.company_name,contact_path(t.contact) %><%end%>
+<% if t.from_type == 1 %><%= link_to t.project_from,project_path(t.project_from) %><%end%>
+<% if t.from_type == 2 %><%= link_to t.user,user_path(t.user) %><%end%>
+<% if t.from_type == 3 %><%= link_to t.user,user_path(t.user) %><%end%>
+</td>
+    		<td><%= link_to t.name, transaction_path(:id => params[:id],:idt => t) %></td>
+    		<td<% if t.typ == 1 %> style="color: red;"<%end%>><% if t.typ == 0 %><%= number_to_currency(t.amount) %><%else%>-<%= number_to_currency(t.amount) %><%end%></td>
+    		<td><% if t.category.nil? %>-<%else%><%= t.category.name %><%end%></td>
+    		<td>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :edit},p) %><% if t.parent_id.nil? %>
+<%= link_to l(:budget_join),join_transaction_path(:id => params[:id],:idt => t) %>
+<%end%><%end%>
+		</td>
+    		<td>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :edit},p) %>
+<%= link_to image_tag('edit.png', :style => 'vertical-align: middle;'), edit_transaction_path(:id => params[:id],:idt => t) %>
+<%end%>
+		</td>
+    		<td>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :edit},p) %>
+<%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'), delete_transaction_path(:id => params[:id],:idt => t), method: :delete, data: { confirm: l(:text_are_you_sure) } %>
+<%end%>
+		</td>
+  	</tr>
+    <% end %>
+<tr style = "border: 1px solid rgb(228, 228, 228);background-color: rgb(238, 238, 238);">
+    		<td></td>
+    		<td></td>
+    		<td></td>
+    		<td></td>
+    		<td></td>
+		<td></td>
+		<td></td>
+    		<td><%= number_to_currency(@plan_sum) %></td>
+    		<td></td>
+    		<td></td>
+    		<td></td>
+
+  	</tr>
+<%end%>
+  </table>
+<% end %>
+</div>

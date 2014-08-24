@@ -1,0 +1,31 @@
+<h2>New category</h2>
+<%= form_for @cat, :url => category_index_path() do |f| %>
+  <% if @cat.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@cat.errors.count, "error") %> prohibited this expense from being saved:</h2>
+
+      <ul>
+      <% @cat.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+<div class="box tabular">
+    <div id="all_attributes">
+	<div id="attributes" class="attributes">
+  <p>
+    <%= f.label :category %>
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :payments,l(:category_pay) %>
+    <% t = [[l(:general_text_No), 0], [l(:general_text_Yes), 1]] %>
+    <%= f.select :payments,t,:size => 10 %>
+  </p>
+<div class="actions">
+    <%= f.submit l(:create) %>
+  </div>
+<% end %>
+
+<%= link_to 'Back', plugin_settings_path("budget") %>

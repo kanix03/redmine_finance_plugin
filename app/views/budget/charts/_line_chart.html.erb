@@ -1,0 +1,77 @@
+$(function() {	
+<%#expecting data in seriesOptions%>
+var seriesOptions = [];
+<% unless @pi.first.nil? %>
+seriesOptions[0] = {visible: false,marker: {enabled: true,radius: 3},name: "<%= l(:chart_plan_income) %>",data: [<% @pi.each do |a| %><%= "{ y:"+a[1].to_s %>,url: '<%= a[0] %>',<%= a[2].blank? ? "marker: {enabled: false}" : "" %>},<%end%>]};
+<% end %>
+<% unless @pe.first.nil? %>
+seriesOptions[1] = {visible: false,marker: {enabled: true,radius: 3},name: "<%= l(:chart_plan_expense) %>",data: [<% @pe.each do |a| %><%= "{ y:"+a[1].to_s %>,url: '<%= a[0] %>',<%= a[2].blank? ? "marker: {enabled: false}" : "" %>},<%end%>]};
+<% end %>
+<% unless @ri.first.nil? %>
+seriesOptions[3] = {name: "<%= l(:chart_real_income) %>",marker: {enabled: true,radius: 3},data: [<% @ri.each do |a| %><%= "{ y:"+a[1].to_s %>,url: '<%= a[0] %>',<%= a[2].blank? ? "marker: {enabled: false}" : "" %>},<%end%>]};
+<% end %>
+<% unless @re.first.nil? %>
+seriesOptions[4] = {name: "<%= l(:chart_real_expense) %>",marker: {enabled: true,radius: 3},data: [<% @re.each do |a| %><%= "{ y:"+a[1].to_s %>,url: '<%= a[0] %>',<%= a[2].blank? ? "marker: {enabled: false}" : "" %>},<%end%>]};
+<% end %>
+<% unless @re.first.nil? || @ri.first.nil? %>
+<% i = -1 %>
+seriesOptions[5] = {name: "<%= l(:chart_real_balance) %>",marker: {enabled: true,radius: 3},data: [<% @re.each do |a| %>
+<% i += 1 %>
+<% o = @ri[i] %>
+<% unless o.nil? %>
+<% u = (o[1] - a[1]) %>
+<%= "{ y:"+(u).to_s %>,url: '<%= a[0] %>',<%= a[2].blank? ? "marker: {enabled: false}" : "" %>},
+<%end%><%end%>]};
+<% end %>
+<% unless @re.first.nil? || @ri.first.nil? %>
+<% i = -1 %>
+seriesOptions[2] = {visible: false,name: "<%= l(:chart_plan_balance) %>",data: [<% @pe.each do |a| %>
+<% i += 1 %>
+<% o = @pi[i] %>
+<% unless o.nil? %>
+<% u = (o[1] - a[1]) %>
+<%= "{ y:"+(u).to_s %>,url: '<%= a[0] %>'},
+<%end%><%end%>]};
+<% end %>
+<%#rendering to container%>
+$('#container').highcharts({
+		title: {
+                text: '<%= l(:chart_line)%>',
+                x: -20 //center
+		},
+		rangeSelector : {
+			selected : 5
+		},
+		navigator: {
+		enabled: false
+		},
+		colors: ['#492970', '#0d233a', '#1aadce', '#8bbc21', '#910000', '#2f7ed8'],
+            legend: {
+		enabled: true,
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom',
+                borderWidth: 0
+            },
+	    xAxis: {
+                categories: [<% @pi.each do |a| %><% unless a.blank? %>'<%= a[0] %>',<%end%><%end%>]
+            },
+	    plotOptions: {
+              series: {
+                cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function() {
+                            var t = '<%= budget_all_path(:utf8=>"✓", :date_type=>"=", :date=> "---" , :date2 =>"", :typ =>"", :cat =>"", :amount_type =>"", :amount=>"", :amount2=> "", :filter=> "", :order=>"", :order2=>"") %>';
+				location.href = t.replace("---",this.url);
+                        }
+                    }
+                }
+              }
+            },
+	    tooltip: {
+		shared: true,
+	     },
+	     series : seriesOptions
+	});
+});

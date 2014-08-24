@@ -1,0 +1,129 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+<script>
+function reset(){
+	document.getElementById("company").value = "";
+	document.getElementById("person").value = "";
+	document.getElementById("department").value = "";
+	document.getElementById("email").value = "";
+	document.getElementById("filter_form").submit();
+}
+function expand(id){
+ var p = id.split("_");
+ for(i=0;i<p[1];i++){
+  var o = document.getElementById(p[0]+"_"+i);
+  if(o.style.display == "none"){
+	o.style.display = "";
+  }else{
+	o.style.display = "none";
+  }
+ }
+}
+</script>
+<% end %>
+<h2 style="float: left;"><%= l(:contact_list) %></h2>
+<% if User.current.allowed_to?({:controller => :contact, :action => :edit}, nil, {:global => true}) %>
+<div class="new">
+<%= link_to(image_tag('add.png', :style => 'vertical-align: middle;'),new_contact_path) %>
+<%= link_to l(:contact_new),new_contact_path %>
+</div>
+<%end%>
+<br><br><br>
+<fieldset id="filters" class="collapsible">
+      <legend onclick="toggleFieldset(this);"><%= l(:search) %></legend>
+<div style="<%= params[:company].nil? || (params[:company].empty? && params[:person].empty? && params[:email].empty? && params[:department].empty?) ? "display: none;" : "" %>">
+<%= form_tag('contact', :method => :get,:id => 'filter_form') do %>
+<table id="filters-table">
+ <tr>
+  <td class="field"><%= l(:contact_company_name) %></td>
+  <td class="values"><%= text_field_tag :company,params[:company] %></td>
+ </tr>
+ <tr>
+  <td class="field"><%= l(:contact_contact_person) %></td>
+  <td class="values"><%= text_field_tag :person,params[:person] %></td>
+ </tr>
+ <tr>
+  <td class="field"><%= l(:contact_department) %></td>
+  <td class="values"><%= text_field_tag :department,params[:department] %></td>
+ </tr>
+ <tr>
+  <td class="field"><%= l(:contact_email) %></td>
+  <td class="values"><%= text_field_tag :email,params[:email] %></td>
+ </tr>
+</table>
+<%= hidden_field_tag 'order' %>
+<%= link_to_function l(:button_apply), 'submit_filter_form("filter_form")', :class => 'icon icon-checked' %>
+<%= link_to_function l(:button_clear), 'reset()', :class => 'icon icon-reload'  %>
+<% end %>
+</div>
+</fieldset>
+<% if @con.empty? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+	<table class="list issues">
+  	  <tr>
+	   <th></th>
+    <% if params[:order]=="company_name DESC" %>
+	<th><%= link_to_function l(:contact_company_name),'order("company_name ASC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function l(:contact_company_name),'order("company_name DESC","filter_form")' %></th>
+    <% end %>
+ 	   <th><%= l(:contact_email) %></th>
+ 	   <th><%= l(:contact_phone) %></th>
+	   <th><%= l(:contact_contact_person) %></th>
+ 	   <th><%= l(:contact_email) %></th>
+ 	   <th><%= l(:contact_phone) %></th>
+ 	   <th><%= l(:contact_address) %></th>
+ 	   <th></th>
+	    <th></th>
+	  </tr>
+	<% @con.each do |c| %> 
+		<tr class="<%= cycle('odd issue','even issue') %>">
+		    <td>
+<% unless c.contact.empty? %>
+<%= link_to_function image_tag('arrow_expanded.png', :style => 'vertical-align: middle;', :id => c.id), 'expand("'+c.id.to_s+'_'+
+c.contact.count.to_s+'")' %>
+<% end %></td>
+		    <td><%= link_to c.company_name, contact_path(c)%></td>
+		    <td><% if c.email.empty? %>-<% else %><%= c.email %><% end %></td>
+		    <td><% if c.phone.empty? %>-<% else %><%= c.phone %><% end %></td>
+		    <td><%= @p = "" %><%= @r = "" %><%= @q = "" %>
+<% if c.contact.empty? %>-<% else %>
+	<% c.contact.each do |f| %>
+	 <% if @p.empty? %>
+	  <% if f.def == 1 %>
+		<% @p="a" %><% @r=f.pemail %><% @q=f.pphone %><%= f.contact_person %>				
+	  <% end %>
+	 <% end %>
+	<% end %>
+	<% if @p.empty? %>
+		<% c.contact[0..0].each do |f| %>	
+			<%= f.contact_person %><% @r=f.pemail %><% @q=f.pphone %>
+		<% end %>	
+	<% end %>
+<% end %>
+		    </td>
+		    <td><% if @r.empty? %>-<% else %><%= @r %><% end %></td>
+		    <td><% if @q.empty? %>-<% else %><%= @q %><% end %></td>
+		    <td><%= c.street+", " if c.street.present? %>
+			<%= c.zip_code if c.zip_code.present? %>
+			<%= c.city+", " if c.city.present? %>
+			<%= c.state+", " if c.state.present? %></td>
+		    <td><%= link_to image_tag('edit.png', :style => 'vertical-align: middle;'), edit_contact_path(c) %></td>
+		    <td><%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'), contact_path(c), method: :delete, data: { confirm: 'All transactions from/to this contact will be deleted. Are you sure?' } %></td></tr>
+<% unless c.contact.empty? %>
+	<% @p = 0 %>
+	<% c.contact.each do |f| %>
+	  <% if f.contact_type == 1 %>
+		<tr id="<%= c.id.to_s+'_'+@p.to_s %>" style="display: none;background-color: rgb(238, 238, 238);"><td></td><td></td><td></td><td></td><td><%= f.contact_person %></td><td><%= f.pemail %></td><td><%= f.pphone %></td><td></td><td><%= link_to image_tag('edit.png', :style => 'vertical-align: middle;'), edit_contact_path(f, :person => 'yes') %></td>
+		    <td><%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'), contact_path(f), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+		</tr><% @p=@p+1 %><%end%>
+		
+	<% end %>
+<% end %>
+	<% end %>
+</table>
+<% end %>
+<%= @b %>
+

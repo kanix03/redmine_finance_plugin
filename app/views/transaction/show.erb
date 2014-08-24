@@ -1,0 +1,62 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+<% end %>
+<%= link_to '<< Back to budget list', budget_index_path(@tran.project_id) %>
+<div class="new">
+<%= link_to(image_tag('add.png', :style => 'vertical-align: middle;'), new_transaction_path(params[:id])) %>
+<%= link_to 'New transaction', new_transaction_path(params[:id]) %>
+</div><br>
+<h2 style="float: left;">Transatcion detail</h2>
+<br><br><br>
+<% if @tran.plan == 1 %><h3>Real</h3><%else%><h3>Plan</h3><%end%>
+<div class="issue tracker-1 status-1 priority-2 priority-default details">
+<table class="attributes">
+	<tr>
+	  <th class="priority">Name:</th><td class="priority"><%= @tran.name %></td>
+	  <th class="start-date">Issuance date:</th><td class="start-date"><%= @tran.issuance_date %></td>
+	</tr>
+	<tr>
+	  <th class="start-date">Description:</th><td class="start-date"><%= @tran.description %></td>
+	  <th class="start-date">Due to:</th><td class="start-date"><%= @tran.due_to %></td>
+	</tr>
+	<tr>
+	  <th class="start-date">From</th><td class="start-date">
+<%unless @tran.from_type.nil? %>
+<% if @tran.from_type == 0 %><%= link_to @tran.contact.company_name,contact_path(@tran.from_id) %><%end%>
+<% if @tran.from_type == 1 %><%= link_to @tran.project_from,project_path(@tran.from_id) %><%end%>
+<% if @tran.from_type == 2 %><%= link_to @tran.user,user_path(@tran.from_id) %><%end%>
+<%end%></td>
+	</tr>
+	<tr>
+	  <th class="start-date">Amount:</th><td class="start-date"><%= @tran.amount %></td>
+	</tr>
+</table>
+</div>
+<% unless @tran_parent.nil? %>
+<% if @tran_parent.plan == 1 %><h3>Real</h3><%else%><h3>Plan</h3><%end%>
+<div class="issue tracker-1 status-1 priority-2 priority-default details">
+
+<table class="attributes">
+	<tr>
+	  <th class="priority">Name:</th><td class="priority"><%= @tran_parent.name %></td>
+	  <th class="start-date">Issuance date:</th><td class="start-date"><%= @tran_parent.issuance_date %></td>
+	</tr>
+	<tr>
+	  <th class="start-date">Description:</th><td class="start-date"><%= @tran_parent.description %></td>
+	  <th class="start-date">Due to:</th><td class="start-date"><%= @tran_parent.due_to %></td>
+	</tr>
+	<tr>
+	  <th class="start-date">From</th><td class="start-date">
+<%unless @tran_parent.from_type.nil? %>
+<% if @tran_parent.from_type == 0 %><%= link_to @tran_parent.contact.company_name,contact_path(@tran_parent.from_id) %><%end%>
+<% if @tran_parent.from_type == 1 %><%= link_to @tran_parent.project_from,project_path(@tran_parent.from_id) %><%end%>
+<% if @tran_parent.from_type == 2 %><%= link_to @tran_parent.user,user_path(@tran_parent.from_id) %><%end%>
+<%end%></td>
+	</tr>
+	<tr>
+	  <th class="start-date">Amount:</th><td class="start-date"><%= @tran_parent.amount %></td>
+	</tr>
+</table>
+</div>
+<%end%>

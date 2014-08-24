@@ -1,0 +1,103 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+<script>
+
+</script>
+<% end %>
+<h3 style="float: left;"><%= link_to @project, budget_index_path(@project.id) %>
+<% unless @version.nil? %>
+ >> <%= link_to @version,budget_path(:id => @project,:idv => @version.id)%>
+<%end%>
+>> Time Entries >> <%= @user.lastname + '' + @user.firstname %></h3><br><br><br>
+<div id="query_form" class="hide-when-print">
+<%= form_tag(budget_time_path(:mem=> params[:mem]), :method => :get,:id => 'filter_form') do %>
+<fieldset id="filters" class="collapsible">
+      <legend onclick="toggleFieldset(this);">Filters</legend>
+      <div style="<%= params[:filter].nil? ? "display: none;" : "" %>">
+<%= hidden_field_tag :version, params[:version] %>
+       <table style="width:100%">
+<tr>
+<td>
+<table id="filters-table">
+ <tr>
+  <td class="field">Date</td>
+  <td class="operator"><%= select_tag(:date_type, options_for_select(['=','<','>','between'],params[:date_type])) %></td>
+  <td class="values"><%= text_field_tag :date,params[:date] %><%= calendar_for('date') %></td>
+  <td class="values" id="between2"><%= text_field_tag :date2,params[:date2] %><%= calendar_for('date2') %></td>
+ </tr>
+ <tr>
+  <td>Type</td>
+  <td><%= select_tag(:typ, options_for_select([["Income",0],["Expense",1]],params[:typ]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>Amount</td>
+  <td><%= select_tag(:amount_type, options_for_select(['=','<','>','between'],params[:amount_type])) %></td>
+  <td class="values"><%= text_field_tag :amount,params[:amount] %></td>
+  <td class="values" id="between"><%= text_field_tag :amount2,params[:amount2] %></td>
+ </tr>
+</table>
+</td>
+<td class="add-filter">
+
+</td>
+</tr>
+</table>
+      </div>
+    </fieldset>
+<%= hidden_field_tag 'filter' %>
+<%= hidden_field_tag 'order',params[:order] %>
+<%= hidden_field_tag 'order2',params[:order2] %>
+<%= link_to_function l(:button_apply), 'submit_filter_form("filter_form")', :class => 'icon icon-checked' %>
+<%= link_to l(:button_clear), budget_time_path(:mem => params[:mem]), :class => 'icon icon-reload'  %>
+<% end %>
+</div>
+<br>
+<% if @t.empty? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <table class="list issues">
+    <tr>
+    <% if params[:order]=="time_entries.spend_on ASC" %>
+	<th><%= link_to_function 'Date','order("time_entries.spend_on DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Date','order("time_entries.spend_on ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="issues.subject ASC" %>
+	<th><%= link_to_function 'Issue','order("issues.subject DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Issue','order("issues.subject ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="enumerations.name ASC" %>
+	<th><%= link_to_function 'Activity','order("enumerations.name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Activity','order("enumerations.name ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="time_entries.hours ASC" %>
+	<th><%= link_to_function 'Hours','order("time_entries.hours DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Hours','order("time_entries.hours ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="paid_on ASC" %>
+	<th><%= link_to_function 'Hour rate','order("paid_on DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Hour rate','order("paid_on ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="paid_on ASC" %>
+	<th><%= link_to_function 'Sum','order("paid_on DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Sum','order("paid_on ASC","filter_form")' %></th>
+    <% end %>
+    </tr>
+    <% @t.each do |t| %>
+  	<tr class="<%= cycle('odd issue','even issue') %>">
+    		<td><%= t[0] %></td>
+    		<td><%= t[1] %></td>
+    		<td><%= t[2] %></td>
+    		<td><%= t[3] %></td>
+    		<td><% if t[4] == "e" %><%= link_to 'Salary missing',salary_path(@user)%><%else%><%= t[4] %><%end%></td>
+    		<td><%= t[5] %></td>
+    <% end %>
+  </table>
+<% end %>

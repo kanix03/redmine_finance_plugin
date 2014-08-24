@@ -1,0 +1,221 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+    <%= javascript_include_tag 'highstock.js', :plugin => 'budget' %>
+    <%= javascript_include_tag 'exporting.js', :plugin => 'budget' %>
+<script>
+<% unless @pi.count <= 1 && @pe.count <= 1 && @ri.count <= 1 && @re.count <= 1 %>
+<%= render partial: "budget/charts/line_chart" if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:line] == "on" %>
+<%end%>
+<%= render partial: "budget/charts/pie1" if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie1] == "on"%>
+<%= render partial: "budget/charts/pie4" if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie4] == "on"%>
+<%= render partial: "budget/charts/pie2" if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie2] == "on"%>
+<%= render partial: "budget/charts/pie3" if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie3] == "on"%>
+<%= render partial: "budget/charts/pie5" if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie5] == "on"%>
+<%= render partial: "budget/charts/pie6" if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie6] == "on"%>
+</script>
+<% end %>
+<h3 style="float: left;"><%= link_to @project, budget_index_path(@project.id) %></h3>
+<div class="new">
+<%= link_to(image_tag('add.png', :style => 'vertical-align: middle;'),new_transaction_path) %>
+<%= link_to 'New transaction',new_transaction_path %>
+</div>
+<div style="clear: both;"></div>
+<div class="tabs">
+	<ul>
+		<li><%= link_to_function "Overview",'view(0)',:class => "selected",:id => "overview_link" %></li>
+		<li><%= link_to_function "Transactions",'view(1)',:id => "transactions_link" %></li>
+		<li><%= link_to_function "Timelogs",'view(2)',:id => "timelogs_link" %></li>
+	</ul>
+</div>
+<div id="overview"<% unless params[:order].nil? %> style="display: none"<%end%>> 
+<table  class="list issues">
+  <tr class="<%= cycle('odd issue','even issue') %>">
+	<th></th><th></th><th colspan="3"><%= l(:budget_plan) %></th><th colspan="3"><%= l(:budget_reality) %></th><th colspan="3"></th>
+  </tr>
+  <tr class="odd issue">
+	<th></th>
+	<th style="border-right: 1px solid black;">%</th>
+	<th><%= l(:budget_income) %></th>
+	<th><%= l(:budget_expense) %></th>
+	<th style="border-right: 1px solid black;"><%= l(:budget_balance) %></th>
+	<th><%= l(:budget_income) %></th>
+	<th><%= l(:budget_expense) %></th>
+	<th><%= l(:budget_balance) %></th>
+	<th style="border-left: 1px solid black;" title="Comparing real income and expense">KPI1</th>
+	<th title="Comparing days left with version left">KPI2</th>
+	<th title="Comparing plan and real balance">KPI3</th>
+  </tr>
+  <% @sums_array.each do |s| %>
+  <tr class="<%= cycle('odd issue','even issue') %>">
+	<td style="text-align: left;padding-right: 0px;">&ensp;
+		<% if s[0] == "v" %>&emsp;<% end %>
+		<% if s[1] == 0 %>
+			<%= link_to l(:budget_nov_version),budget_nov_path() %>
+		<% elsif s[0] == "pr" %>
+			<%= s[2] %>
+		<% else %>
+			<%= link_to s[2], budget_path(:id => @project,:idv => s[1]) %>
+		<% end %>
+	</td>
+	<td style="border-right: 1px solid black;text-align: center;padding-right: 0px;">
+	<% unless s[9].nil? %>
+		<%= s[9].ceil %>
+	<%else%>
+		-
+	<%end%>
+	</td>
+	<td style="text-align: right;"><%= number_to_currency(s[3]) %></td>
+	<td style="text-align: right;"><%= number_to_currency(s[4]) %></td>
+	<td style="border-right: 1px solid black;text-align: right;"><%= number_to_currency(s[3] - s[4]) %></td>
+	<td style="text-align: right;"><%= number_to_currency(s[5]) %></td>
+	<td style="text-align: right;"><%= number_to_currency(s[6]) %></td>
+	<td style="border-right: 1px solid black;text-align: right;"><%= number_to_currency(s[5] - s[6]) %></td>
+<% if s[5] == 0 %><% s[5] = 1 %><%end%>
+<% if s[6] == 0 %><% p = s[5] %><%else%><% p = (s[5] / s[6]) %><%end%>
+<% if p < @kpi1_0 %>
+	<td style="border-left: 1px solid black;" title="Ratio of real income and expense<br><%= p.round(2) %> is less than set minimum - <%= @kpi1_0 %>">
+	<%= image_tag("red_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<%elsif p > @kpi1_1 %>
+	<td style="border-left: 1px solid black;" title="Ratio of real income and expense<br><%= p.round(2) %> is higher than set value <%= @kpi1_1 %>">
+	<%= image_tag("green_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<%else%>
+	<td style="border-left: 1px solid black;" title="Ratio of real income and expense<br><%= p.round(2) %> is between set values <%= @kpi1_0 %> and <%= @kpi1_1 %>">
+	<%= image_tag("yellow_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+<%end%></td>
+
+		<% if s[0] == "p" || s[1] == "0" || s[7].nil? || s[8].nil? || s[9].nil? %><td>-<%else%>
+ <% @version_remain = (100-s[9]) %>
+ <% @days_remain = (((s[8].to_date - Date.today).to_i)/((s[8].to_date - s[7].to_date))*100).to_i %>
+ <%if s[8].to_date < Date.today && s[9] != 100 %>
+  <td title="Version should finished on <%=s[8].to_date%>"><%= image_tag("red_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+ <%elsif (@days_remain)>(@version_remain+@kpi2_1)%>
+  <td title="Days remaing: <%=@days_remain%>%<br>Version remaing: <%=@version_remain.to_i%>%"><%= image_tag("green_dot.png", :plugin => 'budget', :width => "10px", :alt => "green") %>
+ <%elsif (@days_remain)<(@version_remain+@kpi2_0) %>
+  <td title="Days remaing: <%=@days_remain%>%<br>Version remaing: <%=@version_remain.to_i%>%"><%= image_tag("red_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+ <%else%>
+  <td title="Days remaing: <%=@days_remain%>%<br>Version remaing: <%=@version_remain.to_i%>%"><%= image_tag("yellow_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+ <%end%>
+		<%end%>
+	</td>
+		<% p1 = s[3]-s[4] %><% p2 = s[5]-s[6] %>
+		<% if (p1) == 0 %><% p1 = 1 %><%end%>
+		<% if p2/p1 < @kpi3_0 %>
+			<td title="Ratio of plan and real balance<br><%= ((p2)/(p1)).round(2) %> is less than set minimum - <%= @kpi3_0 %>">
+			<%= image_tag("red_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+		<%elsif ((p2)/(p1)) > @kpi3_1 %>
+			<td title="Ratio of plan and real balance<br><%= ((p2)/(p1)).round(2) %> is higher than set value - <%= @kpi3_1 %>">
+			<%= image_tag("green_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+		<%else%>
+			<td title="Ratio of plan and real balance<br><%= ((p2)/(p1)).round(2) %> is between set vaues - <%= @kpi3_0 %> and <%= @kpi3_1 %>">
+			<%= image_tag("yellow_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %>
+		<%end%>
+	</td>
+  </tr>
+<% end %>
+</table>
+<% if @pi.count <= 1 && @pe.count <= 1 && @ri.count <= 1 && @re.count <= 1 %>
+<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+<% if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:line] == "on" %>
+<div id="container" style="width:100%; height:400px;"></div>
+<%end%>
+<% end %>
+<div style="max-width: 100%;">
+<% if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie1] == "on" %>
+<div id="pie1" style="width:50%; height:300px;float:left;"></div>
+<%end%>
+<% if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie4] == "on" %>
+<div id="pie4" style="width:50%; height:300px;float:left;"></div>
+<%end%>
+<% if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie2] == "on" %>
+<div id="pie2" style="width:50%; height:300px;float:left;"></div>
+<%end%>
+<% if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie3] == "on" %>
+<div id="pie3" style="width:50%; height:300px;float:left;"></div>
+<%end%>
+<% if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie5] == "on" %>
+<div id="pie5" style="width:50%; height:300px;float:left;"></div>
+<%end%>
+<% if Setting.plugin_budget[:pop] == 0 || Setting.plugin_budget[:pie6] == "on" %>
+<div id="pie6" style="width:50%; height:300px;float:left;"></div>
+<%end%>
+</div>
+</div>
+
+<div id="transactions"<% if params[:order].nil? %> style="display: none;"<%end%>>
+<% if User.current.allowed_to?({:controller => :transaction, :action => :index},@project) %>
+<div id="query_form" class="hide-when-print">
+<%= form_tag(budget_all_path(:id => @project), :method => :get,:id => 'filter_form') do %>
+<fieldset id="filters" class="collapsible">
+      <legend onclick="toggleFieldset(this);"><%= l(:transaction_filters) %></legend>
+      <div style="<%= params[:filter].nil? ? "display: none;" : "" %>">
+       <table style="width:100%">
+<tr>
+<td>
+<table id="filters-table">
+ <tr>
+  <td class="field"><%= l(:transaction_issuance_date) %></td>
+  <td class="operator"><%= select_tag(:date_type, options_for_select(['=','<','>','between'],params[:date_type])) %></td>
+  <td class="values"><%= text_field_tag :date,params[:date] %><%= calendar_for('date') %></td>
+  <td class="values" id="between2"><%= text_field_tag :date2,params[:date2] %><%= calendar_for('date2') %></td>
+ </tr>
+ <tr>
+  <td><%= l(:transaction_typ) %></td>
+  <td><%= select_tag(:typ, options_for_select([["Income",0],["Expense",1]],params[:typ]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td><%= l(:transaction_category) %></td>
+  <td><%= select_tag(:cat, options_from_collection_for_select(@categories,"id","name",params[:cat]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td><%= l(:transaction_amount) %></td>
+  <td><%= select_tag(:amount_type, options_for_select(['=','<','>','between'],params[:amount_type])) %></td>
+  <td class="values"><%= text_field_tag :amount,params[:amount] %></td>
+  <td class="values" id="between"><%= text_field_tag :amount2,params[:amount2] %></td>
+ </tr>
+</table>
+</td>
+<td class="add-filter">
+
+</td>
+</tr>
+</table>
+      </div>
+    </fieldset>
+<%= hidden_field_tag 'filter' %>
+<%= hidden_field_tag 'order',params[:order] %>
+<%= hidden_field_tag 'order2',params[:order2] %>
+<%= link_to_function l(:button_apply), 'submit_filter_form("filter_form")', :class => 'icon icon-checked' %>
+<%= link_to l(:button_clear), budget_all_path(:id => params[:id]), :class => 'icon icon-reload'  %>
+<% end %>
+<%= render "transaction/transactions" %>
+
+<%end%>
+</div>
+<div id="logs" style="display: none;">
+<h3>Members</h3>
+<% if @mem.empty? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+<table class="list issues">
+    <tr>
+	<th>User</th>
+	<th>Total ($)</th>
+	<th>Total (h)</th>
+	<th>This month ($)</th>
+	<th>This month (h)</th>
+    </tr>
+	<% @a.each do |a| %>
+    <tr class="<%= cycle('odd issue','even issue') %>">
+	<td><%= link_to a[1],budget_time_detail_path(:mem => a[0],:version => "all") %></td>
+	<td><%= number_to_currency(a[2].round(2)) %></td>
+	<td><%= a[4].round(2) %></td>
+	<td><%= number_to_currency(a[3].round(2)) %></td>
+	<td><%= a[5].round(2) %></td>
+    </tr>
+	<%end%>
+<%end%>
+</table></div>

@@ -1,0 +1,23 @@
+<% if @months.empty? %>
+Nothing
+<%else%>
+<%= @months.count %> months salaries waiting to be approved:<br>
+<table>
+<tr>
+<th>Month</th>
+<th>Hours</th>
+<th>Sum</th>
+<th></th>
+</tr>
+<% @array.each do |a| %>
+<tr>
+<td><%= link_to a[0].strftime("%B %Y"), {:controller => 'timelog', :action => 'index', :project_id => @project,:utf8 => '✓', :from => a[0].beginning_of_month, :to => a[0].end_of_month} %></td>
+<td><%= a[1]%></td>
+<td><%= a[2]%></td>
+<td><%= link_to '', budget_new_salaries_path(:date=> a[0]), :class => 'icon icon-checked' %></td>
+</tr>
+<%end%>
+</table>
+<%end%>
+
+

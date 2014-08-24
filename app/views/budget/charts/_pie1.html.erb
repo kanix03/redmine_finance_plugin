@@ -1,0 +1,39 @@
+$(function() {	
+$('#pie1').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false
+        },
+        title: {
+            text: '<%= l(:chart_real_expense_by_project) %>'
+        },
+        tooltip: {
+    	    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b> - ${point.m}'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+		dataLabels: {
+                    enabled: true,
+                    color: '#000000',
+                    connectorColor: '#000000',
+                    format: '<b>{point.name}</b>:<br> {point.percentage:.1f} % - ${point.m}'
+                },showInLegend: true
+                
+            }
+        },
+        series: [{
+            type: 'pie',
+            name: '<%= l(:chart_real_expense_by_project) %>',
+            data: [
+                <% sum = @sums_array.map {|s| s[6]}.reduce(0, :+)%><% @sums_array.each do |v| %><% unless v[0] == "pr" %>{
+                    name: '<%=v[2]%>',
+                    y: <%=v[6]/sum*100%>,
+		    m: <%=v[6]%>,
+                },<%end%><%end%>
+            ]
+        }]
+    });
+});

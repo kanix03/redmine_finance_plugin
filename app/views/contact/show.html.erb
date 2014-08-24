@@ -1,0 +1,102 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+<% end %>
+<% content_for :sidebar do %>
+<br><% unless @contact.picture.nil? %><%= image_tag(@contact.picture, :plugin => 'budget', :width => "250px", :alt => "logo") %><% end %>
+<h3><%= l(:contact_relatited_companies) %></h3>
+<% unless @pa.nil? %><%= link_to @pa.company_name, contact_path(@pa)%><br><br><% end %>
+<% @p.each do |p| %>
+<%= link_to p.company_name, contact_path(p)%><br>
+<% end %>
+<% end %>
+<% if User.current.allowed_to?({:controller => :contact, :action => :edit},nil,{:global => true}) %>
+<%= link_to l(:contact_back), contact_index_path() %>
+<div class="new">
+<%= link_to(image_tag('add.png', :style => 'vertical-align: middle;'),new_contact_path) %>
+<%= link_to l(:contact_new), new_contact_path %>
+</div><%end%><br>
+
+<br><br>
+<div class="issue tracker-1 status-1 priority-2 priority-default details">
+<div class="subject">
+<div><h3><%= @contact.company_name %></h3></div>
+</div>
+<table class="attributes">
+<tr><th class="priority"><%= l(:contact_email) %>:</th><td class="priority"><%= @contact.email %></td>
+<th class="start-date"><%= l(:contact_street) %>:</th><td class="start-date"><%= @contact.street %></td></tr>
+<tr><th class="assigned-to"><%= l(:contact_phone) %>:</th><td class="assigned-to"><%= @contact.phone %></td>
+<th class="due-date"><%= l(:contact_city) %>:</th><td class="due-date"><%= "#{@contact.zip_code} #{@contact.city}" %></td></tr>
+<tr><th class="status">IC:</th><td class="status"><%= @contact.ICO %></td>
+<th class="progress"><%= l(:contact_state) %></th><td class="progress"><%= @contact.state %></td></tr>
+<tr><th class="status">DIC:</th><td class="status"><%= @contact.DIC %></td>
+<th class="start-date"><%= l(:contact_account_number) %>:</th><td class="start-date"><%= @contact.account_number %></td></tr>
+</table>
+<% unless @pe.nil? %>
+<% unless @pe.empty? %>
+<hr>
+<table style="width: 100%; text-align: left;">
+<% @pe.each do |p| %>
+<tr><th><%= l(:contact_contact_person) %></th><td><%= p.contact_person %></td>
+<th><%= l(:contact_email) %>:</th><td><%= mail_to(p.pemail) %></td>
+<th><%= l(:contact_phone) %>:</th><td><%= p.pphone %>
+<th><%= l(:contact_position) %>:</th><td><%= p.position %></td>
+<th><%= l(:contact_department) %>:</th><td><%= p.department %></td>
+<td><%= link_to(image_tag('edit.png', :style => 'vertical-align: middle;'), edit_contact_path(p, :person => 'yes')) %></td>
+<td><%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'), contact_path(p), method: :delete, data: { confirm: l(:text_are_you_sure) } %>
+</tr>
+<% end %>
+</table>
+<% end %><% end %>
+</div>
+
+
+<h3><%= l(:transactions) %></h3>
+<div id="query_form" class="hide-when-print">
+<%= form_tag(contact_path(:id => params[:id]), :method => :get,:id => 'filter_form') do %>
+<fieldset id="filters" class="collapsible">
+      <legend onclick="toggleFieldset(this);"><%= l(:transaction_filters) %></legend>
+      <div style="<%= params[:filter].nil? ? "display: none;" : "" %>">
+       <table style="width:100%">
+<tr>
+<td>
+<table id="filters-table">
+ <tr>
+  <td class="field"><%= l(:transaction_issuance_date) %></td>
+  <td class="operator"><%= select_tag(:date_type, options_for_select(['=','<','>','between'],params[:date_type])) %></td>
+  <td class="values"><%= text_field_tag :date,params[:date] %><%= calendar_for('date') %></td>
+  <td class="values" id="between2"><%= text_field_tag :date2,params[:date2] %><%= calendar_for('date2') %></td>
+ </tr>
+ <tr>
+  <td><%= l(:transaction_typ) %></td>
+  <td><%= select_tag(:typ, options_for_select([["Income",0],["Expense",1]],params[:typ]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td><%= l(:transaction_category) %></td>
+  <td><%= select_tag(:cat, options_from_collection_for_select(@categories,"id","name",params[:cat]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td><%= l(:transaction_amount) %></td>
+  <td><%= select_tag(:amount_type, options_for_select(['=','<','>','between'],params[:amount_type])) %></td>
+  <td class="values"><%= text_field_tag :amount,params[:amount] %></td>
+  <td class="values" id="between"><%= text_field_tag :amount2,params[:amount2] %></td>
+ </tr>
+</table>
+</td>
+<td class="add-filter">
+
+</td>
+</tr>
+</table>
+      </div>
+    </fieldset>
+<%= hidden_field_tag 'filter' %>
+<%= hidden_field_tag 'order',params[:order] %>
+<%= hidden_field_tag 'order2',params[:order2] %>
+<%= link_to_function l(:button_apply), 'submit_filter_form("filter_form")', :class => 'icon icon-checked' %>
+<%= link_to l(:button_clear), contact_path(:id => params[:id]), :class => 'icon icon-reload'  %>
+<% end %>
+<%= render 'transaction/transactions' %>
+</div>

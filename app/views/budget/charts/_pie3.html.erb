@@ -1,0 +1,75 @@
+$(function() {	
+var pie3_value = 0;
+var activity_money = {
+            type: 'pie',
+            name: '<%= l(:chart_expenses_by_activity) %>',
+            data: [<% @activit.each do |i| %><% unless @activity[i.id].nil? %>{
+                    name: '<%=i.name%>',
+                    y: <%=@activity[i.id]/@suma3*100%>,
+		    m: <%=@activity[i.id]%>,
+                },<%end%><%end%>
+            ]
+        };
+var activity_time = {
+            type: 'pie',
+            name: '<%= l(:chart_expenses_by_activity) %>',
+            data: [<% @activit.each do |i| %><% unless @activity2[i.id].nil? %>{
+                    name: '<%=i.name%>',
+                    y: <%=@activity2[i.id]/@hours_sum*100%>,
+		    m: <%=@activity2[i.id]%>,
+                },<%end%><%end%>
+            ]
+        };
+var chart2 = new Highcharts.Chart({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            renderTo: 'pie3'
+        },
+        title: {
+            text: '<%= l(:chart_expenses_by_activity) %> ($)'
+        },
+        tooltip: {
+    	    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b> - ${point.m}'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    color: '#000000',
+                    connectorColor: '#000000',
+                    format: '<b>{point.name}</b>:<br> {point.percentage:.1f} % - {point.m}'
+                },showInLegend: true
+            }
+        },
+        series: [activity_money]
+    });
+chart2.renderer.button("$/h", 10, 10, function() {
+	if(pie3_value == 0){
+		chart2.series[0].remove();
+		chart2.addSeries(activity_time,false);		
+		pie3_value = 1;
+		chart2.tooltip.options.formatter = function() {
+   		  return '<b>' + this.point.name + '</b>:<br> ' + Math.round(this.point.percentage*10)/10 + ' % - ' + this.point.m + 'h';
+		}
+		chart2.redraw();
+   		chart2.setTitle({
+            		text: "<%= l(:chart_expenses_by_activity) %> (h)"
+        	});	
+	}else{
+		chart2.series[0].remove();
+		chart2.addSeries(activity_money,false);
+		pie3_value = 0;
+		chart2.tooltip.options.formatter = function() {
+   		  return '<b>' + this.point.name + '</b>:<br> ' + Math.round(this.point.percentage*10)/10 + ' % - $' + this.point.m;
+		}
+		chart2.redraw();
+   		chart2.setTitle({
+            		text: "<%= l(:chart_expenses_by_activity) %> ($)"
+        	});
+	}
+}, {}, {}, {}).add();
+});

@@ -1,0 +1,86 @@
+<h3>KPI</h3>
+<table width="100%">
+  <tbody>
+    <tr>
+      <th style="text-align: center;width: 15%;"></th>
+      <td style="text-align: center;"></td>
+      <td style="text-align: center;width: 10%;"><%= image_tag("red_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %></td>
+      <td style="text-align: center;width: 10%;"></td>
+      <td style="text-align: center;width: 10%;"><%= image_tag("yellow_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %></td>
+      <td style="text-align: center;width: 10%;"></td>
+      <td style="text-align: center;width: 10%;"><%= image_tag("green_dot.png", :plugin => 'budget', :width => "10px", :alt => "income") %></td>
+    </tr>
+    <tr>
+      <th>KPI 1</th>
+      <td><%= l(:kpi1)%> <%= l(:kpi1_d)%></td>
+      <td></td>
+      <td style="text-align: center;width: 10%;"><%= text_field_tag 'settings[budget_kpi1_0]', Setting.plugin_budget[:budget_kpi1_0],:size => 5 %></td>
+      <td></td>
+      <td style="text-align: center;width: 10%;"><%= text_field_tag 'settings[budget_kpi1_1]', Setting.plugin_budget[:budget_kpi1_1],:size => 5 %></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>KPI 2</th>
+      <td><%= l(:kpi2)%> <%= l(:kpi2_d)%></td>
+      <td></td>
+      <td style="text-align: center;width: 10%;"><%= text_field_tag 'settings[budget_kpi2_0]', Setting.plugin_budget[:budget_kpi2_0],:size => 5 %></td>
+      <td></td>
+      <td style="text-align: center;width: 10%;"><%= text_field_tag 'settings[budget_kpi2_1]', Setting.plugin_budget[:budget_kpi2_1],:size => 5 %></td>
+      <td></td>
+    </tr>
+    <tr>
+      <th>KPI 3</th>
+      <td><%= l(:kpi3)%> <%= l(:kpi3_d)%></td>
+      <td></td>
+      <td style="text-align: center;width: 10%;"><%= text_field_tag 'settings[budget_kpi3_0]', Setting.plugin_budget[:budget_kpi3_0],:size => 5 %></td>
+      <td></td>
+      <td style="text-align: center;width: 10%;"><%= text_field_tag 'settings[budget_kpi3_1]', Setting.plugin_budget[:budget_kpi3_1],:size => 5 %></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table><br>
+<h3 style="float: left"><%= l(:category) %></h3>
+<div style="float: right">
+<%= link_to l(:category_new), new_category_path() %>
+</div>
+<table width="60%" style="margin-left: 10%;clear:both;">
+<% @cat = Category.all %>
+<% if @cat.blank? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+<% @cat.each do |c| %>
+<tr>
+	<td><%= c.name %></td>
+	<td><% if c.payments == 1%><%= l(:category_pay) %><%end%></td>
+	<td><%= link_to(image_tag('edit.png', :style => 'vertical-align: middle;'), edit_category_path(c)) %></td>	
+	<td><%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'), delete_category_path(:id => c.id), method: :delete, data: { confirm: l(:text_are_you_sure) } %></td>
+<%end%><%end%>
+</table>
+<%= hidden_field_tag 'settings[pop]', 1 %>
+<% if Setting.plugin_budget[:pop] != "1" %><% Setting.plugin_budget[:pop] = 0 %><%end%>
+<h3><%= l(:chart) %></h3>
+<table width="60%" style="margin-left: 10%;clear:both;">
+ <tr>
+      <td><%= l(:chart_line) %></td>
+      <td><%= check_box_tag 'settings[line]', Setting.plugin_budget[:line], (true if Setting.plugin_budget[:line] == "on" || Setting.plugin_budget[:pop] == 0) %></td>
+ </tr>
+ <tr>
+      <td><%= l(:chart_real_expense_by_project) %></td>
+      <td><%= check_box_tag 'settings[pie1]', Setting.plugin_budget[:pie1], (true if Setting.plugin_budget[:pie1] == "on" || Setting.plugin_budget[:pop] == 0) %></td>
+ </tr> <tr>
+      <td><%= l(:chart_membres_expenses) %></td>
+      <td><%= check_box_tag 'settings[pie2]', Setting.plugin_budget[:pie2], (true if Setting.plugin_budget[:pie2] == "on" || Setting.plugin_budget[:pop] == 0) %></td>
+ </tr> <tr>
+      <td><%= l(:chart_expenses_by_activity) %></td>
+      <td><%= check_box_tag 'settings[pie3]', Setting.plugin_budget[:pie3], (true if Setting.plugin_budget[:pie3] == "on" || Setting.plugin_budget[:pop] == 0) %></td>
+ </tr> <tr>
+      <td><%= l(:chart_expenses_by_category) %></td>
+      <td><%= check_box_tag 'settings[pie4]', Setting.plugin_budget[:pie4], (true if Setting.plugin_budget[:pie4] == "on" || Setting.plugin_budget[:pop] == 0) %></td>
+ </tr> <tr>
+      <td><%= l(:chart_real_income_by_projects) %></td>
+      <td><%= check_box_tag 'settings[pie5]', Setting.plugin_budget[:pie5], (true if Setting.plugin_budget[:pie5] == "on" || Setting.plugin_budget[:pop] == 0) %></td>
+ </tr> <tr>
+      <td><%= l(:chart_real_balance_by_projects) %></td>
+      <td><%= check_box_tag 'settings[pie6]', Setting.plugin_budget[:pie6], (true if Setting.plugin_budget[:pie6] == "on" || Setting.plugin_budget[:pop] == 0) %></td>
+ </tr>
+</table>

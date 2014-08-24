@@ -1,0 +1,327 @@
+cs:
+  create: "Vytvořit"
+  update: "Aktualizovat"
+  search: "Hledat"
+
+  budget: "Rozpočet"
+  back: "Zpět"
+  salary: "Mzdy"
+  contact: "Kontakty"
+  all: "všechny"
+  chart: "Graf"
+
+  category: "Kategorie"
+  category_new: "Nová kategorie"
+  category_pay: "Mzdy"
+
+  contact_this: "tento projekt"
+  contact_list: "Seznam kontaktů"
+  contact_company_name: "Společnost"
+  contact_contact_person: "Kontaktní osoba"
+  contact_email: "Email"
+  contact_phone: "Telefon"
+  contact_street: "Ulice"
+  contact_city: "Město"
+  contact_zip_code: "PSČ"
+  contact_state: "Stát"
+  contact_position: "Pozice"
+  contact_account_number: "Číslo účtu"
+  contact_company: "Společnost"
+  contact_relatited_companies: "Navázané společnosti"
+  contact_department: "Oddělení"
+  contact_new: "Nový kontakt"
+  contact_edit: "Editovat kontakt"
+  contact_address: "Adresa"
+  contact_back: "<< Zpět na seznam"
+  contact_def: "Výchozí"
+  contact_img: "Obrázek"
+
+  transactions: "Transakce"
+  transaction_real: "Realita"
+  transaction_plan: "Plán"
+  transaction_typ: "Typ"
+  transaction_version: "Verze"
+  transaction_category: "Categorie"
+  transaction_name: "Název"
+  transaction_description: "Popis"
+  transaction_amount: "Částka"
+  transaction_issuance_date: "Datum vystavení"
+  transaction_due_to: "Zaplatit do"
+  transaction_paid_on: "Zaplaceno"
+  transaction_from: "Pro/Od"
+  transaction_from_type: "Typ pro/od"
+  transaction_period: "Perioda"
+  transaction_period_end: "Konec periody"
+  transaction_filters: "Filtr"
+  transaction_new: "Nová transakce"
+  transaction_not_paid: "Nezaplaceno"
+
+  salary_valid_from: "Platná od"
+  salary_valid_to: "Platná do"
+  salary_hours_rate: "Hodinová mzda"
+  salary_back_to_list: "<< Zpět na seznam"
+  salary_user: "Uživatel"
+  salary_new_salary: "Nová mzda"
+  salary_name: "Jméno"
+  salary_salary: "Mzda"
+  salary_list: "Seznam mezd"
+  salary_history: "Historie"
+  salary_monthly: "Měsíční mzda"
+  salary_per_hour: "Hodinová mzda"
+
+  budget_overview: "Přehled"
+  budget_transactions: "Transakce"
+  budget_timelogs: "Výkazy"
+  budget_plan: "Plán"
+  budget_reality: "Realita"
+  budget_income: "Příjem"
+  budget_expense: "Výdaj"
+  budget_balance: "Zůstatek"
+  budget_nov_version: "Bez verze"
+  budget_user: "Uživatel"
+  budget_users: "Uživatelé"
+  budget_total_money: "Celkem ($)"
+  budget_total_hours: "Celkem (h)"
+  budget_month_money: "Tento měsíc ($)"
+  budget_month_hours: "Tento měsíc (h)"
+  budget_join: "Spárovat"
+
+  chart_line: "Spojnicový graf"
+  chart_plan_income: "Planovaný příjem"
+  chart_plan_expense: "Planovaný výdaj"
+  chart_plan_balance: "Planovaný zůstatek"
+  chart_real_income: "Reálný příjem"
+  chart_real_expense: "Reálný výdaj"
+  chart_real_balance: "Reálný zůstatek"
+  chart_real_expense_by_project: "Výdaje podle projektů/verzí"
+  chart_membres_expenses: "Výdaje na zaměstnance"
+  chart_expenses_by_activity: "Výdaje podle aktivity"
+  chart_expenses_by_category: "Výdaje podle kategorie"
+  chart_real_income_by_projects: "Příjem podle projektů/verzí"
+  chart_real_balance_by_projects: "Zůstatek podle projektů/verzí"
+
+  kpi1: "Porovnání reálných příjmů a výdajů"
+  kpi2: "Porovnání zbývajících dní a verze"
+  kpi3: "Porovnání plánovaného a reálného zůstatku"
+  kpi_less: "je menší než minimum"
+  kpi_between: "je mezi"
+  kpi_higher: "je větší než"
+  kpi_days: "Zbývá dní"
+  kpi_version: "Zbývá verze"
+  kpi_finished: "Verze splněna"
+  kpi_should_finish: "Verze měla být hotova: "
+  kpi1_d: "(1 => rovno;1,2 => 20% zisk)"
+  kpi2_d: "(Podle plánu(roadmap),startu prvního úkolu a konce verze),(10 znamená, že počet dní je o 10% větší než zbytek práce na verzi)"
+  kpi3_d: "(1 => rovno;1,2 => 20% více)"
+
+  date:
+    abbr_day_names:
+    - Ne
+    - Po
+    - Út
+    - St
+    - Čt
+    - Pá
+    - So
+    abbr_month_names:
+    -
+    - Led
+    - Úno
+    - Bře
+    - Dub
+    - Kvě
+    - Čvn
+    - Čvc
+    - Srp
+    - Zář
+    - Říj
+    - Lis
+    - Pro
+    day_names:
+    - Neděle
+    - Pondělí
+    - Úterý
+    - Středa
+    - Čtvrtek
+    - Pátek
+    - Sobota
+    formats:
+      default: ! '%d. %m. %Y'
+      long: ! '%d. %B %Y'
+      short: ! '%d %b'
+    month_names:
+    -
+    - Leden
+    - Únor
+    - Březen
+    - Duben
+    - Květen
+    - Červen
+    - Červenec
+    - Srpen
+    - Září
+    - Říjen
+    - Listopad
+    - Prosinec
+    order:
+    - :day
+    - :month
+    - :year
+  datetime:
+    distance_in_words:
+      about_x_hours:
+        one: asi hodinou
+        few: asi %{count} hodinami
+        other: asi %{count} hodinami
+      about_x_months:
+        one: asi měsícem
+        few: asi %{count} měsíci
+        other: asi %{count} měsíci
+      about_x_years:
+        one: asi rokem
+        few: asi %{count} roky
+        other: asi %{count} roky
+      almost_x_years:
+        one: téměř rokem
+        few: téměř %{count} roky
+        other: téměř %{count} roky
+      half_a_minute: půl minutou
+      less_than_x_minutes:
+        one: necelou minutou
+        few: ani ne %{count} minutami
+        other: ani ne %{count} minutami
+      less_than_x_seconds:
+        one: necelou sekundou
+        few: ani ne %{count} sekundami
+        other: ani ne %{count} sekundami
+      over_x_years:
+        one: více než rokem
+        few: více než %{count} roky
+        other: více než %{count} roky
+      x_days:
+        one: 24 hodinami
+        few: ! '%{count} dny'
+        other: ! '%{count} dny'
+      x_minutes:
+        one: minutou
+        few: ! '%{count} minutami'
+        other: ! '%{count} minutami'
+      x_months:
+        one: měsícem
+        few: ! '%{count} měsíci'
+        other: ! '%{count} měsíci'
+      x_seconds:
+        one: sekundou
+        few: ! '%{count} sekundami'
+        other: ! '%{count} sekundami'
+    prompts:
+      day: Den
+      hour: Hodina
+      minute: Minuta
+      month: Měsíc
+      second: Sekunda
+      year: Rok
+  errors: &errors
+    format: ! '%{attribute} %{message}'
+    messages:
+      accepted: musí být potvrzeno
+      blank: je povinná položka
+      confirmation: nebylo potvrzeno
+      empty: nesmí být prázdný/á/é
+      equal_to: musí být rovno %{count}
+      even: musí být sudé číslo
+      exclusion: je vyhrazeno pro jiný účel
+      greater_than: musí být větší než %{count}
+      greater_than_or_equal_to: musí být větší nebo rovno %{count}
+      inclusion: není v seznamu povolených hodnot
+      invalid: není platná hodnota
+      less_than: musí být méně než %{count}
+      less_than_or_equal_to: musí být méně nebo rovno %{count}
+      not_a_number: není číslo
+      not_an_integer: musí být celé číslo
+      odd: musí být liché číslo
+      record_invalid: ! 'Validace je neúspešná: %{errors}'
+      taken: již databáze obsahuje
+      too_long: je příliš dlouhý/á/é (max. %{count} znaků)
+      too_short: je příliš krátký/á/é (min. %{count} znaků)
+      wrong_length: nemá správnou délku (očekáváno %{count} znaků)
+    template:
+      body: ! 'Následující pole obsahují chybně vyplněné údaje: '
+      header:
+        one: Při ukládání objektu %{model} došlo k chybám a nebylo jej možné uložit
+        few: Při ukládání objektu %{model} došlo ke %{count} chybám a nebylo možné
+          jej uložit
+        other: Při ukládání objektu %{model} došlo ke %{count} chybám a nebylo možné
+          jej uložit
+  helpers:
+    select:
+      prompt: Prosím vyberte si
+    submit:
+      create: Vytvořit %{model}
+      submit: Uložit %{model}
+      update: Aktualizovat %{model}
+  number:
+    currency:
+      format:
+        delimiter: ! ' '
+        format: ! '%n %u'
+        precision: 2
+        separator: ! ','
+        significant: false
+        strip_insignificant_zeros: false
+        unit: Kč
+    format:
+      delimiter: ! ','
+      precision: 3
+      separator: .
+      significant: false
+      strip_insignificant_zeros: false
+    human:
+      decimal_units:
+        format: ! '%n %u'
+        units:
+          billion: Miliarda
+          million: Milion
+          quadrillion: Kvadrilion
+          thousand: Tisíc
+          trillion: Bilion
+          unit: ''
+      format:
+        delimiter: ''
+        precision: 1
+        significant: false
+        strip_insignificant_zeros: false
+      storage_units:
+        format: ! '%n %u'
+        units:
+          byte: B
+          gb: GB
+          kb: KB
+          mb: MB
+          tb: TB
+    percentage:
+      format:
+        delimiter: ''
+    precision:
+      format:
+        delimiter: ''
+  support:
+    array:
+      last_word_connector: ! ' a '
+      two_words_connector: ! ' a '
+      words_connector: ! ', '
+  time:
+    am: am
+    formats:
+      default: ! '%a %d. %B %Y %H:%M %z'
+      long: ! '%A %d. %B %Y %H:%M'
+      short: ! '%d. %m. %H:%M'
+    pm: pm
+  # remove these aliases after 'activemodel' and 'activerecord' namespaces are removed from Rails repository
+  activemodel:
+    errors:
+      <<: *errors
+  activerecord:
+    errors:
+      <<: *errors
+

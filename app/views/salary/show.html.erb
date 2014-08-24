@@ -1,0 +1,131 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+    <%= javascript_include_tag 'highcharts.js', :plugin => 'budget' %>
+<% if @mon.length > 0 && @trans.length > 0 %>
+<script>
+$(function () { 
+    $('#container').highcharts({
+            title: {
+                text: '<%= l(:salary_per_hour) %>',
+                x: -20
+            },
+            xAxis: {
+                categories: [<% @mon.each do |m| %>'<%= m %>',<% end %>]
+            },
+            yAxis: {
+                title: {
+                    text: '<%= l(:salary_per_hour) %>'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            legend: {
+                enabled: false
+            },
+            series: [{
+                name: '<%= @user.firstname+' '+@user.lastname %>',
+                data: <%= @sal %>
+            }]
+        });
+        $('#container2').highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: '<%= l(:salary_monthly) %>'
+            },
+            xAxis: {
+                categories: [<% @trans.each do |w| %>'<%= w.issuance_date %>',<% end %>]
+            },
+	    yAxis: {
+                title: {
+                    text: '<%= l(:salary_monthly) %>'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+	    legend: {
+                enabled: false
+            },
+            series: [{
+                name: '<%= @user.firstname+' '+@user.lastname %>',
+                data: [<% @trans.each do |w| %><%= w.amount %>,<% end %>]
+            }]
+        });
+ });
+</script>
+<% end %>
+<% end %>
+<% content_for :sidebar do %>
+<% end %>
+<% date = Array.new %>
+<%= link_to l(:salary_back_to_list), salary_index_path() %>
+<h2><%= l(:salary_user) %> <%= @user.firstname+' '+@user.lastname %></h2>
+<% if @right_to_new_salary %>
+<h3><%= l(:salary_new_salary) %></h3>
+<%= form_for @newsal, :url => salary_index_path() do |f| %>
+<table class="list issues" style="vertical-align: middle">
+<tr>
+<td style="vertical-align: middle"><%= f.label :valid_from,l(:salary_valid_from) %></td><td><%= f.text_field :valid_from, :size => 10 %><%= calendar_for('salary_valid_from') %></td>
+<td style="vertical-align: middle"><%= f.label :valid_to,l(:salary_valid_to) %></td><td><%= f.text_field :valid_to, :size => 10 %><%= calendar_for('salary_valid_to') %></td>
+<td style="vertical-align: middle"><%= f.label :hours_rate,l(:salary_hours_rate) %></td><td><%= f.text_field :hours_rate, :size => 10 %></td>
+<td><%= f.hidden_field :user_id, :value => @user.id %><%= f.submit l(:create) %></td>
+</tr>
+</table>
+<% end %>
+<%end%>
+<h3><%= l(:salary_history) %></h3>
+<div style="width: 49%;float: left;line-height: 15px;margin-right: 2%;">
+
+  <% if @salaries.blank? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+<table class="list issues">
+  <tr>
+    <th><%= l(:salary_valid_from) %></th>
+    <th><%= l(:salary_valid_to) %></th>
+    <th><%= l(:salary_hours_rate) %></th>
+    <th></th>
+    <th></th>
+  </tr>
+<% @salaries.each do |s| %>
+<% date << s.valid_from %>
+  <tr class="<%= cycle('odd issue','even issue') %>">
+    <td class="updated_on"><%= s.valid_from %></td>
+    <td class="updated_on"><% if s.valid_to.nil? %>&infin;<% else %><%= s.valid_to %><% end %></td>
+    <td class="updated_on"><%= s.hours_rate %></td>
+    <td class="updated_on"><%= link_to image_tag('edit.png', :style => 'vertical-align: middle;'),edit_salary_path(:sal => s.id) %></td>
+    <td class="updated_on"><%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'),delete_salary_path(:sal => s.id), method: :delete, data: { confirm: l(:text_are_you_sure) } %></td>
+  </tr>
+<% end %>
+</table>
+<% end %>
+</div>
+<div style="width: 49%;line-height: 15px;">
+<table class="list issues">
+  <tr>
+    <th><%= l(:transaction_issuance_date) %></th>
+    <th><%= l(:transaction_amount) %></th>
+  </tr>
+<% @trans.each do |t| %>
+  <tr class="<%= cycle('odd issue','even issue') %>">
+    <td><%= t.issuance_date %></td>
+    <td><%= t.amount %></td>
+  </tr>
+<%end%>
+</table>
+</div>
+<div style="clear: both;"></div>
+<% if @mon.length > 0 %>
+<div id="container" style="width:<% if @mon.length < 6 && @trans.length < 6 && @mon.length > 0 && @trans.length > 0 %>50%;float:left;<%else%>100%<%end%>; height:400px;"></div>
+<% end %>
+<% if @trans.length > 0 %>
+<div id="container2" style="width:<% if @mon.length < 6 && @trans.length < 6 && @mon.length > 0 && @trans.length > 0 %>50%;<%else%>100%<%end%>; height:400px;"></div>
+<% end %>

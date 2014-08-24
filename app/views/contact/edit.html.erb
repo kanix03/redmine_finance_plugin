@@ -1,0 +1,110 @@
+<h2><%= l(:contact_edit) %></h2>
+
+<%= form_for @contact, :url => contact_path(@contact) do |f| %>
+  <% if @contact.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@contact.errors.count, "error") %> prohibited this expense from being saved:</h2>
+
+      <ul>
+      <% @contact.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+<div class="box tabular">
+    <div id="all_attributes">
+	<div id="attributes" class="attributes">
+		<div class="splitcontent">
+<% if params[:person].nil? || params[:person].empty? %>
+ 			<div class="splitcontentleft">
+  <p>
+    <%= f.label :company_name,l(:contact_company_name) %>
+    <%= f.text_field :company_name %>
+  </p>
+  <p>
+    <%= f.label :email,l(:contact_email) %>
+    <%= f.text_field :email %>
+  </p>
+  <p>
+    <%= f.label :phone,l(:contact_phone) %>
+    <%= f.text_field :phone %>
+  </p>
+  <p>
+    <%= f.label :ICO %>
+    <%= f.text_field :ICO %>
+  </p>
+  <p>
+    <%= f.label :DIC %>
+    <%= f.text_field :DIC %>
+  </p>
+ 			</div>
+			<div class="splitcontentright">
+<p>
+    <%= f.label :street,l(:contact_street) %>
+    <%= f.text_field :street %>
+  </p>
+  <p>
+    <%= f.label :city,l(:contact_city) %>
+    <%= f.text_field :city %>
+  </p>
+  <p>
+    <%= f.label :zip_code,l(:contact_zip_code) %>
+    <%= f.text_field :zip_code %>
+  </p>
+  <p>
+    <%= f.label :state,l(:contact_state) %>
+    <%= f.text_field :state %>
+  </p>
+  <p>
+    <%= f.label :account_number,l(:contact_account_number) %>
+    <%= f.text_field :account_number %>
+  </p>
+  <p>
+    <%= f.label :parent_id,l(:contact_company) %>
+    <%= select_tag 'parent', options_from_collection_for_select(@contacts, 'id', 'company_name', @contact.parent_id), :prompt => "" %>
+  </p>
+<% else %>
+ 			<div class="splitcontentleft">
+  <p>
+    <%= f.label :contact_person,l(:contact_contact_person) %>
+    <%= f.text_field :contact_person %>
+  </p>
+  <p>
+    <%= f.label :pemail,l(:contact_email) %>
+    <%= f.text_field :pemail %>
+  </p>
+  <p>
+    <%= f.label :pphone,l(:contact_phone) %>
+    <%= f.text_field :pphone %>
+  </p>
+  <p>
+    <%= f.label :def,l(:contact_def) %>
+    <%= f.select :def, options_for_select([[l(:general_text_no), 0], [l(:general_text_yes),1]],@contact.def) %>
+  </p>
+ 			</div>
+			<div class="splitcontentright">
+  <p>
+    <%= f.label :parent_id,l(:contact_company) %>
+    <%= f.select :parent_id,@contacts.collect {|a| [a.company_name, a.id]},{:include_blank => true} %>
+  </p>
+  <p>
+    <%= f.label :position,l(:contact_position) %>
+    <%= f.text_field :position %>
+  </p>
+  <p>
+    <%= f.label :department,l(:contact_department) %>
+    <%= f.text_field :department %>
+  </p>
+<% end %>
+			</div>
+		</div>
+	</div>
+    </div>
+</div>
+<div class="actions">
+    <%= f.submit l(:update) %>
+  </div>
+<% end %>
+
+<%= link_to l(:back), contact_index_path %>

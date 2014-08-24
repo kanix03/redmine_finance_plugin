@@ -1,0 +1,80 @@
+$(function() {	
+var pie2_value = 0;
+var pie2_series_money = {
+            type: 'pie',
+            name: '<%= l(:chart_membres_expenses) %>',
+            data: [
+                <% @a.each do |v| %>{
+                    name: '<%=v[1]%>',
+                    y: <%= @suma3 == 0 ? 0 : v[2]/@suma3*100%>,
+		    m: <%=v[2]%>,
+		    h: <%=v[4]%>,
+                },<%end%>
+            ]
+        };
+var pie2_series_time = {
+            type: 'pie',
+            name: '<%= l(:chart_membres_expenses) %>',
+            data: [
+                <% @a.each do |v| %>{
+                    name: '<%=v[1]%>',
+                    y: <%= @hours_sum == 0 ? 0 : v[4]/@hours_sum*100%>,
+		    m: <%=v[4]%>,
+		    h: <%=v[2]%>,
+                },<%end%>
+            ]
+        };
+var chart = new Highcharts.Chart({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            renderTo: 'pie2'
+        },
+        title: {
+            text: '<%= l(:chart_membres_expenses) %> ($)'
+        },
+        tooltip: {
+    	    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b> - ${point.m}'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    color: '#000000',
+                    connectorColor: '#000000',
+                    format: '<b>{point.name}</b>:<br> {point.percentage:.1f} % - {point.m} '
+                },showInLegend: true
+            }
+        },
+        series: [pie2_series_money]
+    });
+chart.renderer.button("$/h", 10, 10, function() {
+	if(pie2_value == 0){
+		chart.series[0].remove();
+		chart.addSeries(pie2_series_time,false);
+		
+		pie2_value = 1;
+		chart.tooltip.options.formatter = function() {
+   		  return '<b>' + this.point.name + '</b>:<br> ' + Math.round(this.point.percentage*10)/10 + ' % - ' + this.point.m + 'h';
+		}
+		chart.redraw();
+   		chart.setTitle({
+            		text: "<%= l(:chart_membres_expenses) %> (h)"
+        	});	
+	}else{
+		chart.series[0].remove();
+		chart.addSeries(pie2_series_money,false);
+		pie2_value = 0;
+		chart.tooltip.options.formatter = function() {
+   		  return '<b>' + this.point.name + '</b>:<br> ' + Math.round(this.point.percentage*10)/10 + ' % - $' + this.point.m;
+		}
+		chart.redraw();
+   		chart.setTitle({
+            		text: "<%= l(:chart_membres_expenses) %> ($)"
+        	});
+	}
+}, {}, {}, {}).add();
+});

@@ -1,0 +1,156 @@
+<% content_for :header_tags do %>
+    <%= stylesheet_link_tag 'budget.css', :plugin => 'budget' %>
+    <%= javascript_include_tag 'js.js', :plugin => 'budget' %>
+<script>
+$(function () {
+    	if($('#amount_type').val() != "between"){
+		$('#between').hide();
+	}
+    	if($('#date_type').val() != "between"){
+		$('#between2').hide();
+	}
+	$('#amount_type').change(function(){
+		if($('#amount_type').val() != "between"){
+			$('#between').hide();
+			$('#amount2').val('');
+		}else{
+			$('#between').show();
+		}
+	});
+	$('#date_type').change(function(){
+		if($('#date_type').val() != "between"){
+			$('#between2').hide();
+			$('#date2').val('');
+		}else{
+			$('#between2').show();
+		}
+	});
+});
+</script>
+<% end %>
+<h2 style="float: left;">Transactions</h2>
+<div class="new">
+<%= link_to(image_tag('add.png', :style => 'vertical-align: middle;'),new_transaction_path) %>
+<%= link_to 'New transaction',new_transaction_path %>
+</div>
+<br><br><br>
+<div id="query_form" class="hide-when-print">
+<%= form_tag({ :controller => 'transaction', :action => 'index', :project_id => @project },:method => :get,:id => 'filter_form') do %>
+<fieldset id="filters" class="collapsible">
+      <legend onclick="toggleFieldset(this);">Filters</legend>
+      <div style="<%= params[:filter].nil? ? "display: none;" : "" %>">
+       <table style="width:100%">
+<tr>
+<td>
+<table id="filters-table">
+ <tr>
+  <td class="field">Issuance Date</td>
+  <td class="operator"><%= select_tag(:date_type, options_for_select(['=','<','>','between'],params[:date_type])) %></td>
+  <td class="values"><%= text_field_tag :date,params[:date] %><%= calendar_for('date') %></td>
+  <td class="values" id="between2"><%= text_field_tag :date2,params[:date2] %><%= calendar_for('date2') %></td>
+ </tr>
+ <tr>
+  <td>Type</td>
+  <td><%= select_tag(:typ, options_for_select([["Income",0],["Expense",1]],params[:typ]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>Version</td>
+  <td><%= select_tag(:ver, options_from_collection_for_select(@versions,"id","name",params[:ver]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>Category</td>
+  <td><%= select_tag(:cat, options_from_collection_for_select(@categories,"id","name",params[:cat]), include_blank: true) %></td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>Amount</td>
+  <td><%= select_tag(:amount_type, options_for_select(['=','<','>','between'],params[:amount_type])) %></td>
+  <td class="values"><%= text_field_tag :amount,params[:amount] %></td>
+  <td class="values" id="between"><%= text_field_tag :amount2,params[:amount2] %></td>
+ </tr>
+</table>
+</td>
+<td class="add-filter">
+
+</td>
+</tr>
+</table>
+      </div>
+    </fieldset>
+<%= hidden_field_tag 'filter' %>
+<%= hidden_field_tag 'order' %>
+<%= link_to_function l(:button_apply), 'submit_filter_form("filter_form")', :class => 'icon icon-checked' %>
+<%= link_to l(:button_clear), transaction_index_path(), :class => 'icon icon-reload'  %>
+<% end %>
+</div>
+<br>
+<% if @trans.empty? %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <table class="list issues">
+    <tr>
+    <% if params[:order]=="issuance_date ASC" %>
+	<th><%= link_to_function 'Issuance Date','order("issuance_date DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Issuance Date','order("issuance_date ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="due_to ASC" %>
+	<th><%= link_to_function 'Due To','order("due_to DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Due To','order("due_to ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="paid_on ASC" %>
+	<th><%= link_to_function 'Paid','order("paid_on DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Paid','order("paid_on ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="contacts.company_name,projects.name,users.lastname ASC" %>
+	<th><%= link_to_function 'From/To','order("contacts.company_name,projects.name,users.lastname DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'From/To','order("contacts.company_name,projects.name,users.lastname ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="name ASC" %>
+	<th><%= link_to_function 'Name','order("name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Name','order("name ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="amount ASC" %>
+	<th><%= link_to_function 'Amount','order("amount DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Amount','order("amount ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="versions.name ASC" %>
+	<th><%= link_to_function 'Version','order("versions.name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Version','order("versions.name ASC","filter_form")' %></th>
+    <% end %>
+    <% if params[:order]=="categories.name ASC" %>
+	<th><%= link_to_function 'Category','order("categories.name DESC","filter_form")' %></th>
+    <% else %>
+	<th><%= link_to_function 'Category','order("categories.name ASC","filter_form")' %></th>
+    <% end %>
+	<th></th>
+	<th></th>
+    </tr>
+    <% @trans.each do |t| %>
+  	<tr class="<%= cycle('odd issue','even issue') %>">
+    		<td><%= t.issuance_date %></td>
+    		<td><%= t.due_to %></td>
+    		<td><% if t.paid_on.nil? %>Not paid<%else%><%= t.paid_on %><%end%></td>
+    		<td>
+<% if t.from_type == 0 %><%= link_to t.contact.company_name,contact_path(t.contact) %><%end%>
+<% if t.from_type == 1 %><%= link_to t.project_from,project_path(t.project_from) %><%end%>
+<% if t.from_type == 2 %><%= link_to t.user,user_path(t.user) %><%end%>
+</td>
+    		<td><%= link_to t.name, transaction_path(:id => params[:id],:idt => t) %></td>
+    		<td><%= t.amount %></td>
+    		<td><% if t.version.nil? %>-<%else%><%= t.version.name %><%end%></td></td>
+    		<td><% if t.category.nil? %>-<%else%><%= t.category.name %><%end%></td></td>
+    		<td><%= link_to image_tag('edit.png', :style => 'vertical-align: middle;'), edit_transaction_path(:id => params[:id],:idt => t) %></td>
+    		<td><%= link_to image_tag('delete.png', :style => 'vertical-align: middle;'), delete_transaction_path(:id => params[:id],:idt => t), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  	</tr>
+    <% end %>
+  </table>
+<% end %>
