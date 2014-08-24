@@ -1,3 +1,8 @@
-= budget
+BUDGET PLUGIN
+A Redmine plugin for cost management.
 
-Description goes here
+NON-STABLE VERSION - NOT FOR COMMON USE
+THIS SOFTWARE IS UNDER DEVELOPMENT AND IT MIGHT PROVIDE A WRONG RESULTS. AUTHOR IS NOT RESPOSIBILE FOR ANY HARM CAUSED BY USING THIS SOFTWARE.
+
+LICENSE
+This plugin is released under the GPL v3 license. See LICENSE for more information.
